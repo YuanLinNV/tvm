@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -e
+set -u
 
 export TVM_HOME="$(git rev-parse --show-toplevel)"
 
-export LD_LIBRARY_PATH="$TVM_HOME/lib":"$TVM_HOME/build":"$TVM_HOME/nnvm":$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH="$TVM_HOME/lib:$TVM_HOME/build:$TVM_HOME/nnvm:${LD_LIBRARY_PATH:-}"
 export PYTHONPATH="$TVM_HOME/python":"$TVM_HOME/nnvm/python":"$TVM_HOME/topi/python"
 export RUST_DIR="$TVM_HOME/rust"
 
@@ -13,11 +14,11 @@ cargo fmt -- --check
 
 # test common
 cd $RUST_DIR/common
-cargo build --features runtime
-cargo test --features runtime --tests
+cargo build
+cargo test --tests
 
-cargo build --features frontend
-cargo test --features frontend --tests
+cargo build --features bindings
+cargo test --features bindings --tests
 
 # test runtime
 cd $RUST_DIR/runtime

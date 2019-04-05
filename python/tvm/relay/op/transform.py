@@ -186,7 +186,7 @@ def reshape_like(data, shape_like):
     return _make.reshape_like(data, shape_like)
 
 
-def take(data, indices, axis=None):
+def take(data, indices, axis=None, mode="clip"):
     """Take elements from an array along an axis.
 
     Parameters
@@ -201,12 +201,17 @@ def take(data, indices, axis=None):
         The axis over which to select values. By default,
         the flattened input array is used.
 
+    mode : str, optional
+        Specifies how out-of-bound indices will behave.
+        clip - clip to the range (default)
+        wrap - wrap around the indices
+
     Returns
     -------
     ret : relay.Expr
         The computed result.
     """
-    return _make.take(data, indices, axis)
+    return _make.take(data, indices, axis, mode)
 
 
 def full(fill_value, shape=(), dtype=""):
@@ -646,3 +651,36 @@ def reverse_reshape(data, newshape):
     if isinstance(newshape, int):
         newshape = [newshape]
     return _make._contrib_reverse_reshape(data, list(newshape))
+
+
+def gather_nd(data, indices):
+    """Gather elements or slices from data and store to a tensor whose shape is
+    defined by indices.
+
+    Parameters
+    ----------
+    data : relay.Expr
+        The input data to the operator.
+
+    indices : relay.Expr
+        The shape of output tensor.
+
+    Returns
+    -------
+    ret : relay.Expr
+        The computed result.
+
+    Examples
+    --------
+    .. code-block:: python
+
+        data = [[0, 1], [2, 3]]
+        indices = [[1, 1, 0], [0, 1, 0]]
+        relay.gather_nd(data, indices) = [2, 3, 0]
+
+        data = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+        indices = [[0, 1], [1, 0]]
+        relay.gather_nd(data, indices) = [[3, 4], [5, 6]]
+    """
+
+    return _make.gather_nd(data, indices)
